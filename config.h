@@ -3,7 +3,7 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Hasklig:size=10";
+static char *font = "Hasklig:size=8:dpi=192:antialias=true:autohint=true";
 static int borderpx = 6;
 
 /*
