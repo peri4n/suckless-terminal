@@ -1,5 +1,5 @@
 pkgname=st
-pkgver=0.8.1
+pkgver=0.8.2
 pkgrel=1
 pkgdesc='A simple virtual terminal emulator for X.'
 arch=('i686' 'x86_64')
@@ -8,25 +8,21 @@ depends=('libxft' 'libxext')
 makedepends=('ncurses')
 url="http://st.suckless.org"
 
-_patches=("https://st.suckless.org/patches/clipboard/st-clipboard-0.8.1.diff")
-
 source=("http://dl.suckless.org/st/$pkgname-$pkgver.tar.gz"
         "config.h"
-        "${_patches[@]}")
+        "1-st-0.8.2-externalpipe.diff"
+        "2-st-0.8.2-clipboard.diff")
 
-sha256sums=('c4fb0fe2b8d2d3bd5e72763e80a8ae05b7d44dbac8f8e3bb18ef0161c7266926'
-            '8e0803352c411709cfa2a49d8b6456e278bb3ed6c5acb9d96b46b3dad5ed1532'
-            'f22e0165aacb2bc86d000728c81f68022abcc601dbfd09e516e1ba772225d7e6')
+sha256sums=('aeb74e10aa11ed364e1bcc635a81a523119093e63befd2f231f8b0705b15bf35'
+            'bfe190a173eb86205280f38208d942f7284f644211569ccc7e470fccf693fefa'
+            'a43e54f36515f846ec662752425859c2784544d3b0be7db1fad4f1791a54480d'
+            '7be1a09831f13361f5659aaad55110bde99b25c8ba826c11d1d7fcec21f32945')
 
 prepare() {
   cd $srcdir/$pkgname-$pkgver
-  # skip terminfo which conflicts with nsurses
-  sed -i '/\ttic -sx st.info/d' Makefile
 
-  for patch in "${_patches[@]}"; do
-    echo "Applying patch $(basename $patch)..."
-    patch -Np1 -i "$srcdir/$(basename $patch)"
-  done
+  patch -p1 -i ../1-st-0.8.2-externalpipe.diff
+  patch -p1 -i ../2-st-0.8.2-clipboard.diff
 
   cp $srcdir/config.h config.h
 }
@@ -38,6 +34,7 @@ build() {
 
 package() {
   cd $srcdir/$pkgname-$pkgver
+  sed -i '/\@tic /d' Makefile
   make PREFIX=/usr DESTDIR="$pkgdir" TERMINFO="$pkgdir/usr/share/terminfo" install
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 README "$pkgdir/usr/share/doc/$pkgname/README"
